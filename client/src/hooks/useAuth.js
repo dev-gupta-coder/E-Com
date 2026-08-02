@@ -1,4 +1,14 @@
-// Step 12 (BUILD-STEPS.md): real auth hook (reads Redux auth state) gets built here
+import { useSelector } from 'react-redux'
+
 export function useAuth() {
-  return { user: null, isAuthenticated: false }
+  const { user, status, error, initialized } = useSelector((state) => state.auth)
+
+  return {
+    user,
+    isAuthenticated: !!user,
+    isAdmin: user?.role === 'admin',
+    status,
+    error,
+    initialized,
+  }
 }

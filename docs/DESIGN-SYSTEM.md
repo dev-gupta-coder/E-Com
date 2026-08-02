@@ -12,7 +12,6 @@ The app is **not** glassmorphic throughout. Glass is used only on transient/floa
 
 **Use glass on:**
 - Navbar (sticky)
-- Login / Signup modal
 - Notification panel
 - User profile dropdown menu
 - Search overlay
@@ -24,9 +23,12 @@ The app is **not** glassmorphic throughout. Glass is used only on transient/floa
 - Product cards
 - Product detail page
 - Checkout
+- Login / Signup pages
 - Forms
 - Tables (customer or admin)
 - Long content pages
+
+**Note (resolved at Step 12):** Login/Signup were originally listed as glass modals here, but `ARCHITECTURE.md` §4 had already placed `LoginPage.jsx`/`RegisterPage.jsx` in `pages/`, not `components/` — a real conflict between the two docs that only surfaced once built. Resolved in favor of full pages: `ProtectedRoute` needs a concrete, bookmarkable `/login` URL regardless of styling, and cart being login-gated (`PRD.md` §5.3) means users already leave their browsing context to authenticate, so a "stay in place" modal wouldn't serve a real flow. A true dismissible login modal remains possible as a deliberate future enhancement, but is new scope, not something implied by the current build.
 
 **Reference Tailwind pattern** — reuse this exact combination everywhere glass is used, so it's visually consistent instead of reinvented per component:
 

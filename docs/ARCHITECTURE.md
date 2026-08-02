@@ -171,3 +171,7 @@ This refresh-and-retry interceptor is one of the trickiest pieces in the whole p
 - **Server** → Render (env vars: `MONGO_URI`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, Cloudinary keys, `CLIENT_URL` for CORS allowlist).
 - **Database** → MongoDB Atlas (free tier is enough for MVP).
 - **Images** → Cloudinary (upload flow — signed vs unsigned preset — decided when we build the admin product-image upload feature).
+
+## 9. Admin Provisioning
+
+There is deliberately no API endpoint that lets a client self-promote to admin (per `@docs/PRD.md` §4 — "no separate signup flow" for admin). This means the *first* admin account on any fresh database (local dev, or a fresh production deploy) cannot be created purely through the API — register a normal account, then manually flip that user's `role` field from `customer` to `admin` directly in the database (MongoDB Atlas's Data Explorer UI, or Compass). This is the one legitimate exception to "no manual DB edits required" and is expected, not a bug — needed once per environment/database, not per admin added later (once one admin exists, they could get an admin-only "promote user" endpoint in Phase 2, if that's ever wanted).

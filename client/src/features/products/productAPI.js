@@ -1,1 +1,4 @@
-// Step 13 (BUILD-STEPS.md): product list/detail/admin CRUD API calls go here
+import axiosInstance from '../../api/axiosInstance'
+
+export const fetchProductsRequest = (params) => axiosInstance.get('/products', { params })
+export const fetchProductByIdRequest = (id) => axiosInstance.get(`/products/${id}`)
