@@ -1,15 +1,20 @@
 import { useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Star, Heart } from 'lucide-react'
 import { fetchProductById } from '../features/products/productSlice'
+import { addCartItem } from '../features/cart/cartSlice'
+import { useAuth } from '../hooks/useAuth'
 
 const STOCK_LOW_THRESHOLD = 5
 
 function ProductDetailPage() {
   const { id } = useParams()
   const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const { isAuthenticated } = useAuth()
   const { current: product, currentStatus, currentError } = useSelector((state) => state.products)
+  const mutatingProductId = useSelector((state) => state.cart.mutatingProductId)
 
   useEffect(() => {
     dispatch(fetchProductById(id))
@@ -28,6 +33,16 @@ function ProductDetailPage() {
         </Link>
       </div>
     )
+  }
+
+  const isAdding = mutatingProductId === product._id
+
+  const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      navigate('/login')
+      return
+    }
+    dispatch(addCartItem({ productId: product._id, quantity: 1 }))
   }
 
   const image = product.images?.[0]
@@ -77,16 +92,19 @@ function ProductDetailPage() {
               type="button"
               disabled
               title="Wishlist — coming soon"
-              className="flex h-11 w-11 items-center justify-center rounded-lg border border-gray-200 text-gray-400 disabled:cursor-not-allowed"
+              aria-label="Wishlist — coming soon"
+              className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2.5 text-gray-400 disabled:cursor-not-allowed"
             >
               <Heart size={18} />
+              <span className="text-sm">Soon</span>
             </button>
             <button
               type="button"
-              disabled={product.stock === 0}
+              onClick={handleAddToCart}
+              disabled={product.stock === 0 || isAdding}
               className="flex-1 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Add to Cart
+              {isAdding ? 'Adding…' : 'Add to Cart'}
             </button>
           </div>
         </div>

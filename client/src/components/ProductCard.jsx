@@ -1,5 +1,8 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
 import { Star, Heart } from 'lucide-react'
+import { addCartItem } from '../features/cart/cartSlice'
+import { useAuth } from '../hooks/useAuth'
 
 // Not specified anywhere in DATABASE.md -- a reasonable, easily-changed default
 // for when "low stock" warning styling kicks in.
@@ -17,6 +20,19 @@ function StockStatus({ stock }) {
 
 function ProductCard({ product }) {
   const image = product.images?.[0]
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const { isAuthenticated } = useAuth()
+  const mutatingProductId = useSelector((state) => state.cart.mutatingProductId)
+  const isAdding = mutatingProductId === product._id
+
+  const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      navigate('/login')
+      return
+    }
+    dispatch(addCartItem({ productId: product._id, quantity: 1 }))
+  }
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-4">
@@ -58,23 +74,28 @@ function ProductCard({ product }) {
 
       <div className="mt-4 flex items-center gap-2">
         {/* 7. Wishlist -- no wishlist feature exists yet (PRD.md non-goal);
-            present but disabled rather than silently non-functional. */}
+            present but disabled rather than silently non-functional. The
+            "Soon" label is always visible (not hover-only) per
+            DESIGN-SYSTEM.md §14 -- title alone would fail on touch devices. */}
         <button
           type="button"
           disabled
           title="Wishlist — coming soon"
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-400 disabled:cursor-not-allowed"
+          aria-label="Wishlist — coming soon"
+          className="flex items-center gap-1 rounded-lg border border-gray-200 px-2 py-1.5 text-gray-400 disabled:cursor-not-allowed"
         >
           <Heart size={16} />
+          <span className="text-xs">Soon</span>
         </button>
 
-        {/* 8. Add to Cart -- Step 14 wires this to the real cart thunk */}
+        {/* 8. Add to Cart */}
         <button
           type="button"
-          disabled={product.stock === 0}
+          onClick={handleAddToCart}
+          disabled={product.stock === 0 || isAdding}
           className="flex-1 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Add to Cart
+          {isAdding ? 'Adding…' : 'Add to Cart'}
         </button>
       </div>
     </div>

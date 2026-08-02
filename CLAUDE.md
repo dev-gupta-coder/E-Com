@@ -27,6 +27,17 @@ Then write the code, scoped **only** to the current step — do not pull in logi
 
 After the code: briefly explain only the non-obvious lines. Skip explaining boilerplate that isn't load-bearing for understanding (e.g. don't explain `require('express')`).
 
+## Required checklist — verify before ending any step's response
+Every response that builds part of a step must include all of the following that apply. Before sending, check the response actually contains each one — do not rely on having intended to include it:
+1. Before-code explanation (what/why/what-breaks/memory hook)
+2. The code itself, scoped to this step
+3. After-code: non-obvious lines explained
+4. **Frontend steps only:** the UI Review (`@docs/DESIGN-SYSTEM.md` §16)
+5. A complete proof/verification table — every case actually shown with its real result, not summarized as "verified" or "all cases passed"
+6. If anything is mentioned as "fixed," "resolved," or a "gotcha" without being explained in the same response (e.g. referencing a bug by name in a proof table row without explaining it) — explain it fully in that same response, don't leave it as a dangling reference for a later question.
+
+If a response is missing any applicable item, add it before stopping — do not wait to be asked in a follow-up.
+
 ## Depth calibration (important — read this twice)
 Dev does not want a deep theoretical lecture on every concept. Match this:
 - **New/unfamiliar concept** → what it does, why it's here, how to remember it. 3-5 sentences, not an essay.
@@ -38,14 +49,7 @@ Dev does not want a deep theoretical lecture on every concept. Match this:
 - After finishing a step: stop, ask if he understood it or has questions, and **wait for confirmation** before moving to the next step. Never auto-continue.
 - Never dump an entire feature (multiple unrelated files) in one response. One file, or one tightly coupled pair (e.g. a controller + its route), per response.
 - If something in the existing code is a bug or a bad practice, say so directly and explain the fix — don't silently work around it or leave it unmentioned.
-- **Before modifying, rewriting, or refactoring any file that already exists** —
-  especially one Dev may have hand-edited himself outside the current step —
-  stop and describe exactly what you want to change and why, then **wait for
-  explicit confirmation** before applying it. This applies even if the change
-  looks like an obvious fix. (This does not apply to a file you're actively
-  writing for the first time within the current step, before Dev has reviewed
-  it yet — only to touching something from a previous step or anything Dev
-  has personally edited.)
+- **Before modifying, rewriting, or refactoring any file that already exists** — especially one Dev may have hand-edited himself outside the current step — stop and describe exactly what you want to change and why, then **wait for explicit confirmation** before applying it. This applies even if the change looks like an obvious fix. (This does not apply to a file you're actively writing for the first time within the current step, before Dev has reviewed it yet — only to touching something from a previous step or anything Dev has personally edited.)
 
 ## Frontend-specific process rule
 For every frontend step (Step 10 onward in `BUILD-STEPS.md`): follow `@docs/DESIGN-SYSTEM.md` exactly for colors, spacing, typography, and glassmorphism placement — don't introduce a one-off color, spacing value, or glass effect not defined there. After building any page or reusable component, do the **UI Review** described in `@docs/DESIGN-SYSTEM.md` §16 before moving to the next step — explain the layout, spacing, color, and placement choices, the UX principle behind them, what could confuse a user, and one way it could be improved. Keep it proportional to the depth-calibration rule above, not a design thesis.

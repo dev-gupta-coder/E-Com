@@ -1,8 +1,8 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 
-function ProtectedRoute({ children }) {
-  const { isAuthenticated, initialized } = useAuth()
+function ProtectedRoute({ children, adminOnly = false }) {
+  const { isAuthenticated, isAdmin, initialized } = useAuth()
 
   // Haven't heard back from GET /me yet -- don't redirect prematurely.
   if (!initialized) {
@@ -11,6 +11,10 @@ function ProtectedRoute({ children }) {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />
+  }
+
+  if (adminOnly && !isAdmin) {
+    return <Navigate to="/" replace />
   }
 
   return children

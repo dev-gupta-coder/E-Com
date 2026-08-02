@@ -87,6 +87,7 @@ const getAllOrders = asyncHandler(async (req, res) => {
 
   const [orders, total] = await Promise.all([
     Order.find()
+      .populate('user', 'name email')
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit),
