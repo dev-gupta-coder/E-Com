@@ -55,6 +55,8 @@ Why a method on the model instead of calling bcrypt directly in the controller: 
 
 **Why the cart does NOT snapshot price:** a cart is *shopping intent*, not a financial record. If a product's price changes while sitting in someone's cart, showing the live price (and re-validating stock) at checkout is the correct, expected behavior — you've likely seen "price changed since you added this" on real stores. This is different from an Order, below, which must never silently change.
 
+**Dangling product references (found and fixed post-Step 17):** `Cart.items.product` is a plain reference, not a snapshot (by design, per above) — which means deleting a `Product` that's sitting in someone's cart leaves that cart holding a reference to nothing. Mongoose's `populate()` doesn't throw on this, it just resolves `product` to `null`, which crashed the frontend (unguarded `item.product.price` access) before this was caught. Fixed at two independent layers: `deleteProduct` now runs `Cart.updateMany({ 'items.product': id }, { $pull: { items: { product: id } } })` to stop new dangling refs at the source, **and** `CartPage`/`CheckoutPage` filter out any item with a null `product` regardless of how it arose (legacy data, a future different deletion path, a manual DB edit) — the frontend guard is the one that actually prevents a crash; the backend cleanup just keeps the data itself clean going forward.
+
 ---
 
 ## 5. Order

@@ -13,7 +13,15 @@ function CartPage() {
     dispatch(fetchCart())
   }, [dispatch])
 
-  const total = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
+  // A cart item's `product` comes back null when the referenced product has
+  // since been deleted (Mongoose populate() can't resolve a dangling ref) --
+  // rendering item.product.price unguarded crashes the whole app (see
+  // ErrorBoundary in App.jsx for what that costs). Orphaned items are hidden
+  // rather than shown broken; the notice below tells the user why the count
+  // might look lower than expected.
+  const validItems = items.filter((item) => item.product)
+  const orphanedCount = items.length - validItems.length
+  const total = validItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -23,7 +31,15 @@ function CartPage() {
 
       {error && <div className="mt-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>}
 
-      {status === 'succeeded' && items.length === 0 && (
+      {status === 'succeeded' && orphanedCount > 0 && (
+        <div className="mt-6 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-700">
+          {orphanedCount} item{orphanedCount > 1 ? 's' : ''} in your cart{' '}
+          {orphanedCount > 1 ? 'are' : 'is'} no longer available and{' '}
+          {orphanedCount > 1 ? 'were' : 'was'} removed from view.
+        </div>
+      )}
+
+      {status === 'succeeded' && validItems.length === 0 && (
         <div className="mt-6 rounded-xl border border-gray-200 bg-white p-8 text-center">
           <p className="text-sm text-gray-500">Your cart is empty.</p>
           <Link to="/" className="mt-3 inline-block text-sm font-medium text-indigo-600 hover:text-indigo-500">
@@ -32,10 +48,10 @@ function CartPage() {
         </div>
       )}
 
-      {items.length > 0 && (
+      {validItems.length > 0 && (
         <>
           <ul className="mt-6 divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white">
-            {items.map((item) => {
+            {validItems.map((item) => {
               const isMutating = mutatingProductId === item.product._id
               return (
                 <li key={item.product._id} className="flex items-center gap-4 p-4">

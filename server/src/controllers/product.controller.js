@@ -2,6 +2,7 @@ const AppError = require('../utils/AppError');
 const asyncHandler = require('../utils/asyncHandler');
 const isValidId = require('../utils/isValidId');
 const Product = require('../models/product.model');
+const Cart = require('../models/cart.model');
 
 const listProducts = asyncHandler(async (req, res) => {
   const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
@@ -79,6 +80,12 @@ const deleteProduct = asyncHandler(async (req, res) => {
   if (!product) {
     throw new AppError('Product not found', 404);
   }
+
+  // Without this, every cart holding this product is left with a dangling
+  // reference forever -- the frontend now guards against that (see
+  // CartPage/CheckoutPage), but removing it at the source stops it from
+  // accumulating instead of only hiding the symptom.
+  await Cart.updateMany({ 'items.product': id }, { $pull: { items: { product: id } } });
 
   res.status(200).json({ success: true });
 });

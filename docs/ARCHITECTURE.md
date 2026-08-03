@@ -162,6 +162,7 @@ This refresh-and-retry interceptor is one of the trickiest pieces in the whole p
 - `AppError` class: `(message, statusCode)` — thrown from controllers for expected failures (not found, validation, unauthorized).
 - `asyncHandler` wraps every controller so we don't write `try/catch` in each one — it forwards rejected promises to `next(err)`.
 - A single centralized `error.middleware.js`, registered last in `app.js`, formats every error response consistently: `{ success: false, message }` (stack trace only in dev mode, never in production).
+- **Frontend: `components/ErrorBoundary.jsx`** (added after a real production bug — see `DATABASE.md` §4's dangling-reference note). Without an error boundary, React unmounts the *entire* app on any uncaught render error, not just the broken page. Wrapped around `<AppRoutes />` only (not `<Navbar />`), so navigation stays usable even if the current page crashes. Keyed by `location.pathname` so navigating away from a crashed page actually recovers, since error boundary state doesn't reset on its own.
 
 ---
 

@@ -61,7 +61,18 @@ const cartSlice = createSlice({
     // show a loading state on just that row/card, not the whole cart/page.
     mutatingProductId: null,
   },
-  reducers: {},
+  reducers: {
+    // Dispatched alongside logoutUser (see Navbar's handleLogout) -- cart
+    // state belongs to whoever is logged in, and nothing else clears it on
+    // logout, so the next visitor/session would otherwise inherit a stale
+    // items array and an inaccurate badge count.
+    resetCart: (state) => {
+      state.items = []
+      state.status = 'idle'
+      state.error = null
+      state.mutatingProductId = null
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchCart.pending, (state) => {
@@ -122,4 +133,5 @@ const cartSlice = createSlice({
   },
 })
 
+export const { resetCart } = cartSlice.actions
 export default cartSlice.reducer

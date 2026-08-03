@@ -31,7 +31,12 @@ function CheckoutPage() {
     dispatch(fetchCart())
   }, [dispatch])
 
-  const total = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
+  // Same orphaned-reference guard as CartPage: a deleted product leaves
+  // item.product null after populate(), which would otherwise crash this
+  // page's render the same way it crashed Cart's.
+  const validItems = cartItems.filter((item) => item.product)
+  const orphanedCount = cartItems.length - validItems.length
+  const total = validItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
   const isSubmitting = placeStatus === 'loading'
 
   const handleChange = (e) => {
@@ -79,7 +84,7 @@ function CheckoutPage() {
     return <p className="mx-auto max-w-xl px-4 py-8 text-sm text-gray-500">Loading your cart…</p>
   }
 
-  if (cartItems.length === 0) {
+  if (validItems.length === 0) {
     return (
       <div className="mx-auto max-w-xl px-4 py-8">
         <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
@@ -95,6 +100,13 @@ function CheckoutPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <h1 className="text-h1 text-gray-900">Checkout</h1>
+
+      {orphanedCount > 0 && (
+        <div className="mt-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-700">
+          {orphanedCount} item{orphanedCount > 1 ? 's' : ''} in your cart{' '}
+          {orphanedCount > 1 ? 'are' : 'is'} no longer available and won't be included in this order.
+        </div>
+      )}
 
       <div className="mt-6 grid grid-cols-1 gap-8 md:grid-cols-3">
         <form onSubmit={handleSubmit} className="space-y-4 md:col-span-2">
@@ -231,7 +243,7 @@ function CheckoutPage() {
         <div className="h-fit rounded-xl border border-gray-200 bg-white p-4">
           <h2 className="text-sm font-semibold text-gray-900">Order Summary</h2>
           <ul className="mt-3 space-y-2">
-            {cartItems.map((item) => (
+            {validItems.map((item) => (
               <li key={item.product._id} className="flex justify-between text-sm text-gray-600">
                 <span className="truncate pr-2">
                   {item.product.name} × {item.quantity}
