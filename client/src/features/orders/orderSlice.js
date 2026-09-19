@@ -1,3 +1,4 @@
+//src/features/orders/orderSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { placeOrderRequest, fetchMyOrdersRequest, fetchAllOrdersRequest } from './orderAPI'
 

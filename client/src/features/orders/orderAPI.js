@@ -1,3 +1,4 @@
+//src/features/orders/orderAPI.js
 import axiosInstance from '../../api/axiosInstance'
 
 export const placeOrderRequest = (shippingAddress) => axiosInstance.post('/orders', { shippingAddress })
